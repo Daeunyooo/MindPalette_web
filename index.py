@@ -1,4 +1,4 @@
-# Perfectlly work! #내일 할일은 버튼 선택시 색 바꾸기
+# Version B
 from flask import Flask, request, jsonify, session, render_template_string
 from flask import Flask, request, make_response
 import requests
@@ -6,7 +6,6 @@ import base64
 import openai
 from io import BytesIO
 from PIL import Image 
-import os
 
 app = Flask(__name__)
 
@@ -86,7 +85,7 @@ def api_process_drawing():
         raw_colors_hex = {f"#{r:02x}{g:02x}{b:02x}" for r, g, b in raw_colors}
         used_colors_names = [BRUSH_COLORS[hex_color] for hex_color in raw_colors_hex if hex_color in BRUSH_COLORS]
         prompt = generate_prompt(text_description, used_colors_names)
-        image_urls = call_dalle_api(prompt, n=2)
+        image_urls = call_dalle_api(prompt, n=4)
         return jsonify({'image_urls': image_urls})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -95,13 +94,13 @@ def api_process_drawing():
 def generate_prompt(description, colors=None):
     if colors:
         color_description = ', '.join(colors)
-        prompt = f"Create two abstract images using the colors {color_description} and inspired by the theme '{description}'."
+        prompt = f"Create an abstract image using the colors {color_description} and inspired by the theme '{description}'."
     else:
-        prompt = f"Create two abstract images inspired by the theme '{description}'."
+        prompt = f"Create an abstract image inspired by the theme '{description}'."
     return prompt
 
 
-def call_dalle_api(prompt, n=2):
+def call_dalle_api(prompt, n=4):
     api_key = app.secret_key
     headers = {"Authorization": f"Bearer {api_key}"}
     payload = {"prompt": prompt, "n": n, "size": "512x512"}
@@ -114,21 +113,23 @@ def call_dalle_api(prompt, n=2):
 
 
 predefined_sentences = {
-    4: "Let's draw. Please use 'Visual Metaphor' on the right.",
-    5: "Let's draw. Please use 'Visual Metaphor' on the right.",
-    6: "Thank you for participating in the session. You can restart the session if you want to explore more."
+    4: "Let's draw and then write down your response. Please use the 'Visual Metaphor' on the right when you draw.",
+    5: "Let's draw and then write down your response. Please use the 'Visual Metaphor' on the right when you draw.",
+    6: "Thank you for participating in the session."
 }
 
+
+import re
 
 def generate_art_therapy_question(api_key, question_number, session_history):
     openai.api_key = api_key
     question_prompts = [
         "Generate a question to ask users about their current emotion.",
-        "Based on the previous responses, generate a question for identifying and describing the emotion, such as asking about the intensity of the emotion or where in the body it is felt the most.",
-        "Based on the previous responses, generate a question that explores the context, such as asking what triggered this emotion or describing the situation or thought that led to these feelings.",
-        "Based on the previous responses, generate a question that asks the user to describe and visualize their emotion as an 'abstract shape or symbol' to create their own metaphor for their mind.",
-        "Based on the previous responses, generate a question that asks the user to describe and visualize their emotions as a 'texture' to create their own metaphor for their mind.",
-        "Based on the previous responses, generate one sentence summary in a friendly tone without any interpretation. Also, provide very brief advice to help the user objectively interpret their emotions, treating 'thoughts' as just 'thoughts,' in a short sentence. Do not use labeling in front of each sentence."
+        "Based on the previous responses, generate a question for identifying and describing the emotion, such as asking about the intensity of the emotion or where in the body it is felt the most. Do not use "" and quoation mark in a sentence.",
+        "Based on the previous responses, generate a question that explores the context, such as asking what triggered this emotion or describing the situation or thought that led to these feelings. Do not use "" and quoation mark in a sentence.",
+        "Based on the previous responses, generate a question that asks the user to describe and visualize their emotion as an 'abstract shape or symbol' to create their own metaphor for their mind. Do not use "" and quoation mark in a sentence.",
+        "Based on the previous responses, generate a question that asks the user to describe and visualize their emotions as a 'texture' to create their own metaphor for their mind. Do not use "" and quoation mark in a sentence.",
+        "Based on the previous responses, provide a short summary of users' previous responses in a natrual tone, address the reader by using 'you'. Then, as a therapist, provide ACT (Acceptance and Commitment Therapy) advice catered to users’ response in a natural tone. For example, as an ACT therapist, provide reappraisal advice to help users to accept emotions, or help them to change the context of emotions if users’ emotion was negative. Ensure the summary and advice are clear and directly address the reader by using 'you' to make the steps easy to follow and implement. The guide should be user-friendly and reflect users' previous responses."
     ]
 
     user_responses = " ".join([resp for who, resp in session_history if who == 'You'])
@@ -139,8 +140,8 @@ def generate_art_therapy_question(api_key, question_number, session_history):
         response = openai.Completion.create(
             engine="gpt-3.5-turbo-instruct",
             prompt=prompt_text,
-            max_tokens=150,
             n=1,
+            max_tokens=300,
             stop=None,
             temperature=0.7
         )
@@ -155,6 +156,8 @@ def generate_art_therapy_question(api_key, question_number, session_history):
         return full_question_text
     else:
         return "Do you want to restart the session?"
+
+
 
 
 
@@ -174,7 +177,7 @@ def home():
     return render_template_string("""
     <html>
         <head>
-            <title>Mind Palette</title>
+            <title>Mind Palette (B)</title>
             <style>
                 body {
                     font-family: 'Helvetica', sans-serif;
@@ -186,6 +189,7 @@ def home():
                     width: 100%;
                 }
                 .left, .right {
+                    line-height: 1.4;
                     width: 50%;
                     padding: 20px;
                 }
@@ -400,7 +404,7 @@ def home():
         <body>
             <div class="container">
                 <div class="left">
-                <h1>Mind Palette</h1>
+                <h1>Mind Palette (B)</h1>
                 <div id="question">{{ latest_question }}</div>
                 <progress value="{{ progress_value }}" max="100"></progress>  <!-- Progress bar here -->
                 <form onsubmit="return sendResponse();">
@@ -563,7 +567,7 @@ def home():
                 <div class="right">
                     <h1>Visual Metaphor</h1>
                     <form onsubmit="return generateImage(event);">
-                        <label for="description">I'm here to help you express your emotions. <br> From Question 3, please <strong>describe what you drew</strong> on the canvas below. <br> You can continue your drawing or choose an image to draw on.</label><br>
+                        <label for="description">I'm here to help you express your emotions. <br> From Question 4, please <strong>describe what you drew</strong> on the canvas below. <br> You can continue your drawing or choose an image to draw on.</label><br>
                         <input type="text" id="description" autocomplete="off" style="width: 400px; padding: 5px; margin-top: 10px;" placeholder="Describe your drawing..." />
                         <input type="submit" value="Generate" class="button-style" />
                     </form>
