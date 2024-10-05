@@ -94,9 +94,9 @@ def api_process_drawing():
 def generate_prompt(description, colors=None):
     if colors:
         color_description = ', '.join(colors)
-        prompt = f"Create an abstract image using the colors {color_description} and inspired by the theme '{description}'."
+        prompt = f"Create an abstract drawing for children, using the colors {color_description} and inspired by the theme '{description}'."
     else:
-        prompt = f"Create an abstract image inspired by the theme '{description}'."
+        prompt = f"Create an abstract drawing for children, inspired by the theme '{description}'."
     return prompt
 
 
@@ -135,16 +135,23 @@ def generate_art_therapy_question(api_key, question_number, session_history):
     user_responses = " ".join([resp for who, resp in session_history if who == 'You'])
     context = f"Based on the user's previous responses: {user_responses}"
 
+    
     if 1 <= question_number <= 6:
-        prompt_text = f"{context} {question_prompts[question_number - 1]}"
-        response = openai.Completion.create(
-            engine="gpt-3.5-turbo-instruct",
-            prompt=prompt_text,
-            n=1,
-            max_tokens=300,
-            stop=None,
-            temperature=0.7
-        )
+    # Modify context to ensure child-friendly prompts
+    child_friendly_context = f"Imagine you're talking to a child aged 7-10. Be friendly, encouraging, and use simple words. {context}"
+
+    # Adding child-friendly question format
+    prompt_text = f"{child_friendly_context} {question_prompts[question_number - 1]}"
+    
+    # Request completion with child-friendly intent
+    response = openai.Completion.create(
+        engine="gpt-3.5-turbo-instruct",
+        prompt=prompt_text,
+        n=1,
+        max_tokens=150,  # Reduce max_tokens for simpler and shorter responses
+        stop=None,
+        temperature=0.6  # Adjust temperature to be more focused
+    )
         question_text = response.choices[0].text.strip()
 
         # Adjust here to include the question number before predefined sentences
@@ -156,7 +163,6 @@ def generate_art_therapy_question(api_key, question_number, session_history):
         return full_question_text
     else:
         return "Do you want to restart the session?"
-
 
 
 
