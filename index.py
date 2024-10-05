@@ -85,7 +85,7 @@ def api_process_drawing():
         raw_colors_hex = {f"#{r:02x}{g:02x}{b:02x}" for r, g, b in raw_colors}
         used_colors_names = [BRUSH_COLORS[hex_color] for hex_color in raw_colors_hex if hex_color in BRUSH_COLORS]
         prompt = generate_prompt(text_description, used_colors_names)
-        image_urls = call_dalle_api(prompt, n=4)
+        image_urls = call_dalle_api(prompt, n=2)
         return jsonify({'image_urls': image_urls})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -100,7 +100,7 @@ def generate_prompt(description, colors=None):
     return prompt
 
 
-def call_dalle_api(prompt, n=4):
+def call_dalle_api(prompt, n=2):
     api_key = app.secret_key
     headers = {"Authorization": f"Bearer {api_key}"}
     payload = {"prompt": prompt, "n": n, "size": "512x512"}
