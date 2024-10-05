@@ -124,12 +124,12 @@ import re
 def generate_art_therapy_question(api_key, question_number, session_history):
     openai.api_key = api_key
     question_prompts = [
-        "Generate a question to ask users about their current emotion.",
-        "Based on the previous responses, generate a question for identifying and describing the emotion, such as asking about the intensity of the emotion or where in the body it is felt the most. Do not use "" and quoation mark in a sentence.",
-        "Based on the previous responses, generate a question that explores the context, such as asking what triggered this emotion or describing the situation or thought that led to these feelings. Do not use "" and quoation mark in a sentence.",
-        "Based on the previous responses, generate a question that asks the user to describe and visualize their emotion as an 'abstract shape or symbol' to create their own metaphor for their mind. Do not use "" and quoation mark in a sentence.",
-        "Based on the previous responses, generate a question that asks the user to describe and visualize their emotions as a 'texture' to create their own metaphor for their mind. Do not use "" and quoation mark in a sentence.",
-        "Based on the previous responses, provide a short summary of users' previous responses in a natrual tone, address the reader by using 'you'. Then, as a therapist, provide ACT (Acceptance and Commitment Therapy) advice catered to users’ response in a natural tone. For example, as an ACT therapist, provide reappraisal advice to help users to accept emotions, or help them to change the context of emotions if users’ emotion was negative. Ensure the summary and advice are clear and directly address the reader by using 'you' to make the steps easy to follow and implement. The guide should be user-friendly and reflect users' previous responses."
+        "Generate a question to ask users about their current emotion. Please use an easy and friendly tone suitable for children",
+        "Based on the previous responses, generate a question for identifying and describing the emotion, such as asking about the intensity of the emotion or where in the body it is felt the most. Please use an easy and friendly tone suitable for children, incorporating some metaphors. Do not use "" and quoation mark in a sentence.",
+        "Based on the previous responses, generate a question that explores the context, such as asking what triggered this emotion or describing the situation or thought that led to these feelings. Please use an easy and friendly tone suitable for children, incorporating some metaphors. Do not use "" and quoation mark in a sentence.",
+        "Based on the previous responses, generate a question that asks the user to describe and visualize their emotion as an 'abstract shape or symbol' to create their own metaphor for their mind. Please use an easy and friendly tone suitable for children, incorporating some metaphors. Do not use "" and quoation mark in a sentence.",
+        "Based on the previous responses, generate a question that asks the user to describe and visualize their emotions as a 'texture' to create their own metaphor for their mind. Please use an easy and friendly tone suitable for children, incorporating some metaphors. Do not use "" and quoation mark in a sentence.",
+        "Based on the previous responses, provide a short summary of users' previous responses in a natrual tone, address the reader by using 'you'. Then, as a therapist, provide ACT (Acceptance and Commitment Therapy) advice catered to users’ response using easy and friendly tone suitable for children, incorporating some metaphors. For example, as an ACT therapist, provide reappraisal advice to help users to accept emotions, or help them to change the context of emotions if users’ emotion was negative. Ensure the summary and advice are clear and directly address the reader by using 'you' to make the steps easy to follow and implement. The guide should be user-friendly and reflect users' previous responses."
     ]
 
     user_responses = " ".join([resp for who, resp in session_history if who == 'You'])
@@ -163,7 +163,6 @@ def generate_art_therapy_question(api_key, question_number, session_history):
         return full_question_text
     else:
         return "Do you want to restart the session?"
-
 
 
 
