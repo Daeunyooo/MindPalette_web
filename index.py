@@ -182,7 +182,7 @@ def home():
     return render_template_string("""
     <html>
         <head>
-            <title>Mind Palette (B)</title>
+            <title>Mind Palette! (B)</title>
             <style>
                 body {
                     font-family: 'Helvetica', sans-serif;
